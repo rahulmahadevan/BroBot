@@ -26,22 +26,27 @@ public class Main {
             e.printStackTrace();
         }
 
-        latestNotice = "";
+        DBOps db = new DBOps();
+        latestNotice = db.getNoticeFromDB();
+        db.DBClose();
 
         Thread noticeChecker = new Thread() {
             @Override
             public void run() {
                 while(true) {
                     try {
+                        DBOps mongo = new DBOps();
                         LocalTime time = LocalTime.now();
 //                        Calendar calendar = Calendar.getInstance();
 //                        calendar.setTime(new Date());
 //                        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
                         if(time.isAfter(LocalTime.parse(startTime)) && time.isBefore(LocalTime.parse(endTime))) {
                             //NOTICE
+                            System.out.println("Thread Active, checking for events");
                             String checkLatestNotice = getLatestNotice();
                             if (!latestNotice.equals(checkLatestNotice)) {
                                 latestNotice = checkLatestNotice;
+                                mongo.setNoticeInDB(latestNotice);
                                 bot.sendLatestNotice(latestNotice);
                             }
 
@@ -50,7 +55,6 @@ public class Main {
                             //Announcements
 
                             //Reminders
-                            DBOps mongo = new DBOps();
                             ArrayList<String> announcements = (ArrayList<String>) mongo.getAnnouncements();
                             for(int i=0; i<announcements.size();i++){
                                 bot.sendReminder(announcements.get(i));
@@ -81,7 +85,7 @@ public class Main {
             System.out.println("IO Exception while loading "+url);
         }
         String response = "Notice Announcement:\uD83D\uDCE8 \n\n"+ text + "\n\nLink: " + link;
-        System.out.println(response);
+        System.out.println("Fetched latest notice");
         return response;
     }
 }

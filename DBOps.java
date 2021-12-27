@@ -1,6 +1,7 @@
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoException;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
@@ -13,10 +14,7 @@ import org.bson.types.ObjectId;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 public class DBOps {
@@ -27,6 +25,7 @@ public class DBOps {
     private static MongoDatabase database;
     private static final String C_ANNOUNCEMENT = Utils.COLLECTION_ANNOUNCEMENT;
     private static final String C_TIME_TABLE = Utils.COLLECTION_TIME_TABLE;
+    private static final String C_NOTICE = Utils.COLLECTION_NOTICE;
     private static DateFormat dateFormat;
 
     public DBOps(){
@@ -118,4 +117,32 @@ public class DBOps {
         return result;
     }
 
+    public String getNoticeFromDB(){
+        String notice = "";
+        try {
+            MongoCollection collection = database.getCollection(C_NOTICE);
+            FindIterable<Document> iterDoc = collection.find();
+            Iterator it = iterDoc.iterator();
+            while (it.hasNext()) {
+                Document noticeDoc = (Document) it.next();
+                notice = noticeDoc.getString("notice");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return notice;
+    }
+
+    public void setNoticeInDB(String notice){
+        MongoCollection collection = database.getCollection(C_NOTICE);
+        Document findQuery = new Document();
+        Bson updates = Updates.combine(Updates.set("notice", notice));
+        UpdateOptions options = new UpdateOptions().upsert(true);
+        try{
+            collection.updateOne(findQuery, updates, options);
+            System.out.println("Notice updated in Database successfully");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }
