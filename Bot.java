@@ -39,7 +39,7 @@ public class Bot extends TelegramLongPollingBot {
                     messageOUT = "\uD83D\uDC7D Bro bot is a Maven Project using " +
                             "telegram bot API for Java and MongoDB as the data store \uD83D\uDCBB \n" +
                             "\n" +
-                            "View project on GitHub : https://github.com/rahulmahadevan/CRBot";
+                            "View project on GitHub : https://github.com/rahulmahadevan/BroBot";
 
                 }else if(messageIN.equals("/notice") || messageIN.equals("/notice@CSISCRBot")){
                     messageOUT = Main.getLatestNotice();
